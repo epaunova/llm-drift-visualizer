@@ -1,5 +1,7 @@
 # 🤖 LLM Hallucination & Robustness Detector (Single Mode)
 
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-green)](https://share.streamlit.io/epaunova/llm-hallucination-detector/main/hallucination_app.py)
+
 Welcome! This Streamlit app is designed to help you quickly spot hallucination patterns and toxicity in outputs from large language models (LLMs) like GPT and others.
 
 ---
