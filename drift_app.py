@@ -2,6 +2,12 @@ import streamlit as st
 from difflib import HtmlDiff
 from nltk.translate.bleu_score import sentence_bleu
 
+def jaccard_similarity(list1, list2):
+    set1, set2 = set(list1), set(list2)
+    intersection = set1.intersection(set2)
+    union = set1.union(set2)
+    return len(intersection) / len(union) if union else 0
+
 # --- HEADER & BRANDING ---
 st.markdown(
     """
@@ -12,8 +18,7 @@ st.markdown(
     </p>
     """, unsafe_allow_html=True)
 
-# --- INPUT FIELDS ---
-st.markdown("#### Paste two LLM outputs below (from different models or versions):")
+st.markdown("> **Paste two LLM outputs below (from different models or versions):**")
 output1 = st.text_area("LLM Output 1", height=120)
 output2 = st.text_area("LLM Output 2", height=120)
 
@@ -29,19 +34,38 @@ if st.button("Compare"):
         try:
             bleu = sentence_bleu([output1.split()], output2.split())
             st.success(f"**BLEU Similarity Score:** {bleu:.2f} _(1 = identical, 0 = totally different)_")
-            if bleu > 0.8:
-                st.info("Outputs are very similar.")
-            elif bleu > 0.4:
-                st.warning("Moderate drift detected.")
-            else:
-                st.error("Significant drift detected!")
         except Exception as e:
+            bleu = None
             st.error(f"Could not compute BLEU score: {e}")
 
-        # Drift Score (just for demo)
-        drift = 1 - bleu if 'bleu' in locals() else None
+        # Drift Score
+        drift = 1 - bleu if bleu is not None else None
         if drift is not None:
             st.markdown(f"**Drift Score:** `{drift:.2f}`")
+
+        # Length Diff
+        len1 = len(output1.split())
+        len2 = len(output2.split())
+        st.markdown(f"**Length (Output 1):** {len1} words  \n**Length (Output 2):** {len2} words")
+        st.markdown(f"**Length difference:** {abs(len1 - len2)} words")
+
+        # Lexical Jaccard Similarity
+        jaccard = jaccard_similarity(output1.split(), output2.split())
+        st.markdown(f"**Token Overlap (Jaccard):** {jaccard:.2f} _(1 = identical words, 0 = no overlap)_")
+
+        # Unique Words Difference
+        unique1 = set(output1.split())
+        unique2 = set(output2.split())
+        only_in_1 = unique1 - unique2
+        only_in_2 = unique2 - unique1
+        st.markdown("**Unique words only in Output 1:** " + ", ".join(only_in_1) if only_in_1 else "None")
+        st.markdown("**Unique words only in Output 2:** " + ", ".join(only_in_2) if only_in_2 else "None")
+        
+        # Manual factuality score (for demo)
+        st.markdown("### 🧠 Manual scoring (optional)")
+        fact_score = st.slider("Manual Factuality (0 = hallucinated, 1 = fully factual):", 0.0, 1.0, 0.5, 0.01)
+        st.info(f"Manual Factuality score set to: {fact_score:.2f}")
+
     else:
         st.warning("Please paste both outputs to compare.")
 
