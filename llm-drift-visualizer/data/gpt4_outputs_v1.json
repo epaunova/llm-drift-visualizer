@@ -1,0 +1,12 @@
+[
+  {
+    "prompt": "What is the capital of France?",
+    "output_v1": "The capital of France is Paris.",
+    "output_v2": "Paris is the capital of France."
+  },
+  {
+    "prompt": "Who wrote 'Pride and Prejudice'?",
+    "output_v1": "Jane Austen wrote 'Pride and Prejudice'.",
+    "output_v2": "'Pride and Prejudice' was written by Jane Austen."
+  }
+]
